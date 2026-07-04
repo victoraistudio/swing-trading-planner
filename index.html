@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swing Trading Calculator</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: linear-gradient(135deg, #07111f 0%, #0f2b4d 40%, #5b21b6 100%);
+            --card: rgba(255, 255, 255, 0.96);
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --accent: #2563eb;
+            --accent-2: #7c3aed;
+            --profit: #16a34a;
+            --loss: #dc2626;
+            --shadow: 0 24px 70px rgba(2, 8, 23, 0.28);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            background: var(--card);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 32px;
+            width: min(100%, 760px);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header { text-align: center; margin-bottom: 22px; }
+        .icon { font-size: 44px; margin-bottom: 10px; }
+        .header h1 { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+        .header p { color: var(--muted); font-size: 14px; }
+
+        .panel {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .input-group { margin-bottom: 0; }
+        .risk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+        .risk-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 7px;
+            color: #334155;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            font-family: inherit;
+        }
+
+        textarea { min-height: 90px; resize: vertical; }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .results { display: none; animation: fadeIn 0.25s ease-out; }
+        .results.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.09), rgba(124, 58, 237, 0.13));
+            border: 1px solid rgba(37, 99, 235, 0.14);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .hero-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
+        .hero-value { font-size: 30px; font-weight: 800; font-family: 'Courier New', monospace; }
+
+        .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+        .result-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 98px;
+        }
+        .result-label { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .result-value { font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; }
+        .positive { color: var(--profit); }
+        .negative { color: var(--loss); }
+        .neutral { color: var(--accent); }
+
+        .notes-grid { display: grid; gap: 12px; }
+        .journal-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+        .journal-list { display: grid; gap: 10px; }
+        .journal-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .journal-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
+        .status-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .status-winning { background: rgba(22, 163, 74, 0.12); color: var(--profit); }
+        .status-losing { background: rgba(220, 38, 38, 0.12); color: var(--loss); }
+
+        .button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        button:hover { transform: translateY(-1px); }
+        .primary-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.22);
+        }
+        .secondary-btn { background: #e2e8f0; color: #0f172a; }
+        .tiny-btn { padding: 8px 10px; font-size: 12px; background: #fee2e2; color: var(--loss); }
+
+        .empty-state { text-align: center; color: var(--muted); padding: 12px 6px 4px; font-size: 14px; }
+
+        @media (max-width: 600px) {
+            .container { padding: 24px 18px; border-radius: 18px; }
+            .header h1 { font-size: 24px; }
+            .grid-2, .result-grid, .journal-form { grid-template-columns: 1fr; }
+            .result-value { font-size: 16px; }
+            .hero-value { font-size: 24px; }
+            .journal-item { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">📈</div>
+            <h1>Swing Trade Planner</h1>
+            <p>Professional investor dashboard for target exits, downside risk, and expected returns.</p>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Trade Inputs</div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label for="ticker">Stock Ticker</label>
+                    <input type="text" id="ticker" placeholder="e.g. NVDA" maxlength="10">
+                </div>
+                <div class="input-group">
+                    <label for="quantity">Stock Quantity</label>
+                    <input type="number" id="quantity" placeholder="e.g. 100" min="0" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="averageCost">Average Cost ($/share)</label>
+                    <input type="number" id="averageCost" placeholder="e.g. 48.20" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="currentPrice">Current Price ($/share)</label>
+                    <input type="number" id="currentPrice" placeholder="e.g. 54.90" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="targetPrice">Target Price ($/share)</label>
+                    <input type="number" id="targetPrice" placeholder="e.g. 61.50" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="stopLossPrice">Stop Loss Price ($/share)</label>
+                    <input type="number" id="stopLossPrice" placeholder="e.g. 43.00" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="brokerageFee">Brokerage Fee ($)</label>
+                    <input type="number" id="brokerageFee" placeholder="e.g. 10" min="0" step="0.01">
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Risk Management</div>
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <span class="result-label">Risk Per Share</span>
+                    <span class="result-value neutral" id="riskPerShare">$0.00</span>
+                </div>
+                <div class="risk-card">
+                    <span class="result-label">Maximum Loss</span>
+                    <span class="result-value negative" id="maximumLoss">$0.00</span>
+                </div>
+                <div class="risk-card">
+                    <span class="result-label">Risk Percentage</span>
+                    <span class="result-value neutral" id="riskPercentage">0.00%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Position Size</div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label for="accountSize">Account Size ($)</label>
+                    <input type="number" id="accountSize" placeholder="e.g. 10000" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="riskPerTrade">Risk Per Trade (%)</label>
+                    <input type="number" id="riskPerTrade" placeholder="e.g. 1" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="risk-grid" style="margin-top: 12px;">
+                <div class="risk-card">
+                    <span class="result-label">Recommended Shares</span>
+                    <span class="result-value neutral" id="recommendedShares">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Trade Notes</div>
+            <div class="notes-grid">
+                <div class="input-group">
+                    <label for="whyBought">Why I bought this stock</label>
+                    <textarea id="whyBought" placeholder="Describe your thesis or reason for the trade..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="targetNote">My target</label>
+                    <textarea id="targetNote" placeholder="Outline your target price or upside thesis..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="stopLoss">My stop loss</label>
+                    <textarea id="stopLoss" placeholder="State your risk limit or stop-loss plan..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Trade Journal</div>
+            <div class="journal-form">
+                <div class="input-group">
+                    <label for="journalDate">Date</label>
+                    <input type="date" id="journalDate">
+                </div>
+                <div class="input-group">
+                    <label for="journalStatus">Status</label>
+                    <select id="journalStatus">
+                        <option value="Winning">Winning</option>
+                        <option value="Losing">Losing</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="journalBuyPrice">Buy Price</label>
+                    <input type="number" id="journalBuyPrice" placeholder="e.g. 48.20" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="journalCurrentPrice">Current Price</label>
+                    <input type="number" id="journalCurrentPrice" placeholder="e.g. 54.90" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="button-row" style="margin-bottom: 12px;">
+                <button class="primary-btn" type="button" id="addJournalBtn">Add Journal Entry</button>
+            </div>
+            <div class="journal-list" id="journalList"></div>
+        </div>
+
+        <div class="results" id="results">
+            <div class="hero">
+                <div class="hero-title">Projected Position Outcome</div>
+                <div class="hero-value" id="heroValue">$0.00</div>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-card">
+                    <span class="result-label">Total Investment</span>
+                    <span class="result-value neutral" id="totalInvestment">$0.00</span>
+                </div>
+                <div class="result-card">
+                    <span class="result-label">Expected Profit</span>
+                    <span class="result-value" id="expectedProfit">$0.00</span>
+                </div>
+                <div class="result-card">
+                    <span class="result-label">Profit Percentage</span>
+                    <span class="result-value" id="profitPercentage">0.00%</span>
+                </div>
+                <div class="result-card">
+                    <span class="result-label">Break-even Selling Price</span>
+                    <span class="result-value neutral" id="breakEvenPrice">$0.00</span>
+                </div>
+                <div class="result-card">
+                    <span class="result-label">Risk-Reward Ratio</span>
+                    <span class="result-value neutral" id="riskRewardRatio">0.00</span>
+                </div>
+                <div class="result-card">
+                    <span class="result-label">Estimated Brokerage</span>
+                    <span class="result-value neutral" id="feeDisplay">$0.00</span>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button class="primary-btn" type="button" onclick="resetCalculator()">Reset Trade Fields</button>
+            </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            Enter your trade details to view the full investor-style breakdown.
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'swing-trading-calculator-state';
+
+        const tickerInput = document.getElementById('ticker');
+        const quantityInput = document.getElementById('quantity');
+        const averageCostInput = document.getElementById('averageCost');
+        const currentPriceInput = document.getElementById('currentPrice');
+        const targetPriceInput = document.getElementById('targetPrice');
+        const stopLossPriceInput = document.getElementById('stopLossPrice');
+        const brokerageFeeInput = document.getElementById('brokerageFee');
+        const accountSizeInput = document.getElementById('accountSize');
+        const riskPerTradeInput = document.getElementById('riskPerTrade');
+        const whyBoughtInput = document.getElementById('whyBought');
+        const targetNoteInput = document.getElementById('targetNote');
+        const stopLossInput = document.getElementById('stopLoss');
+        const resultsDiv = document.getElementById('results');
+        const emptyStateDiv = document.getElementById('emptyState');
+        const journalDateInput = document.getElementById('journalDate');
+        const journalStatusInput = document.getElementById('journalStatus');
+        const journalBuyPriceInput = document.getElementById('journalBuyPrice');
+        const journalCurrentPriceInput = document.getElementById('journalCurrentPrice');
+        const journalList = document.getElementById('journalList');
+        const addJournalBtn = document.getElementById('addJournalBtn');
+
+        const state = {
+            ticker: '',
+            quantity: '',
+            averageCost: '',
+            currentPrice: '',
+            targetPrice: '',
+            stopLossPrice: '',
+            brokerageFee: '',
+            accountSize: '',
+            riskPerTrade: '',
+            notes: {
+                whyBought: '',
+                targetNote: '',
+                stopLoss: ''
+            },
+            journal: []
+        };
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                Object.assign(state, parsed);
+                if (!state.notes) {
+                    state.notes = { whyBought: '', targetNote: '', stopLoss: '' };
+                }
+                if (!Array.isArray(state.journal)) {
+                    state.journal = [];
+                }
+            } catch (error) {
+                console.warn('Unable to load saved calculator data', error);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (error) {
+                console.warn('Unable to save calculator data', error);
+            }
+        }
+
+        function hydrateForm() {
+            tickerInput.value = state.ticker || '';
+            quantityInput.value = state.quantity || '';
+            averageCostInput.value = state.averageCost || '';
+            currentPriceInput.value = state.currentPrice || '';
+            targetPriceInput.value = state.targetPrice || '';
+            stopLossPriceInput.value = state.stopLossPrice || '';
+            brokerageFeeInput.value = state.brokerageFee || '';
+            accountSizeInput.value = state.accountSize || '';
+            riskPerTradeInput.value = state.riskPerTrade || '';
+            whyBoughtInput.value = state.notes.whyBought || '';
+            targetNoteInput.value = state.notes.targetNote || '';
+            stopLossInput.value = state.notes.stopLoss || '';
+            renderJournal();
+            calculateTrade();
+        }
+
+        function syncStateFromForm() {
+            state.ticker = tickerInput.value.trim();
+            state.quantity = quantityInput.value;
+            state.averageCost = averageCostInput.value;
+            state.currentPrice = currentPriceInput.value;
+            state.targetPrice = targetPriceInput.value;
+            state.stopLossPrice = stopLossPriceInput.value;
+            state.brokerageFee = brokerageFeeInput.value;
+            state.accountSize = accountSizeInput.value;
+            state.riskPerTrade = riskPerTradeInput.value;
+            state.notes.whyBought = whyBoughtInput.value;
+            state.notes.targetNote = targetNoteInput.value;
+            state.notes.stopLoss = stopLossInput.value;
+            saveState();
+        }
+
+        function renderJournal() {
+            if (!state.journal.length) {
+                journalList.innerHTML = '<div class="empty-state">No journal entries yet. Add your first trade note.</div>';
+                return;
+            }
+
+            journalList.innerHTML = '';
+            state.journal.forEach((entry, index) => {
+                const item = document.createElement('div');
+                item.className = 'journal-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${entry.date || 'No date'}</strong>
+                        <div class="journal-meta">Buy: $${Number(entry.buyPrice || 0).toFixed(2)} • Current: $${Number(entry.currentPrice || 0).toFixed(2)}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="status-pill ${entry.status === 'Winning' ? 'status-winning' : 'status-losing'}">${entry.status}</span>
+                        <button class="tiny-btn" type="button" data-index="${index}">Delete</button>
+                    </div>
+                `;
+                journalList.appendChild(item);
+            });
+        }
+
+        function addJournalEntry() {
+            const date = journalDateInput.value;
+            const buyPrice = parseFloat(journalBuyPriceInput.value);
+            const currentPrice = parseFloat(journalCurrentPriceInput.value);
+            const status = journalStatusInput.value;
+
+            if (!date || Number.isNaN(buyPrice) || Number.isNaN(currentPrice)) {
+                return;
+            }
+
+            state.journal.unshift({ date, buyPrice, currentPrice, status });
+            journalDateInput.value = '';
+            journalBuyPriceInput.value = '';
+            journalCurrentPriceInput.value = '';
+            journalStatusInput.value = 'Winning';
+            saveState();
+            renderJournal();
+        }
+
+        function deleteJournalEntry(index) {
+            state.journal.splice(index, 1);
+            saveState();
+            renderJournal();
+        }
+
+        [tickerInput, quantityInput, averageCostInput, currentPriceInput, targetPriceInput, stopLossPriceInput, brokerageFeeInput, accountSizeInput, riskPerTradeInput, whyBoughtInput, targetNoteInput, stopLossInput].forEach((input) => {
+            input.addEventListener('input', () => {
+                syncStateFromForm();
+                calculateTrade();
+            });
+        });
+
+        addJournalBtn.addEventListener('click', () => {
+            addJournalEntry();
+        });
+
+        journalList.addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-index]');
+            if (!button) return;
+            deleteJournalEntry(Number(button.getAttribute('data-index')));
+        });
+
+        function calculateTrade() {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const averageCost = parseFloat(averageCostInput.value) || 0;
+            const currentPrice = parseFloat(currentPriceInput.value) || 0;
+            const targetPrice = parseFloat(targetPriceInput.value) || 0;
+            const stopLossPrice = parseFloat(stopLossPriceInput.value) || 0;
+            const brokerageFee = parseFloat(brokerageFeeInput.value) || 0;
+            const accountSize = parseFloat(accountSizeInput.value) || 0;
+            const riskPerTrade = parseFloat(riskPerTradeInput.value) || 0;
+
+            if (quantity <= 0 || averageCost <= 0 || currentPrice <= 0 || targetPrice <= 0) {
+                resultsDiv.classList.remove('show');
+                emptyStateDiv.style.display = 'block';
+                return;
+            }
+
+            const totalInvestment = quantity * averageCost;
+            const expectedSaleValue = quantity * targetPrice;
+            const totalBrokerage = brokerageFee * 2;
+            const expectedProfit = expectedSaleValue - totalInvestment - totalBrokerage;
+            const profitPercentage = totalInvestment === 0 ? 0 : (expectedProfit / totalInvestment) * 100;
+            const breakEvenSellingPrice = totalInvestment === 0 ? 0 : (totalInvestment + totalBrokerage) / quantity;
+            const reward = targetPrice - averageCost;
+            const riskPerShare = stopLossPrice > 0 ? averageCost - stopLossPrice : 0;
+            const maximumLoss = riskPerShare * quantity;
+            const riskPercentage = totalInvestment === 0 ? 0 : (maximumLoss / totalInvestment) * 100;
+            const riskAmount = accountSize * (riskPerTrade / 100);
+            const recommendedShares = riskPerShare > 0 && riskAmount > 0 ? Math.floor(riskAmount / riskPerShare) : 0;
+            const riskRewardRatio = riskPerShare > 0 ? (reward / riskPerShare).toFixed(2) : '0.00';
+
+            document.getElementById('heroValue').textContent = (expectedProfit >= 0 ? '+' : '-') + '$' + Math.abs(expectedProfit).toFixed(2);
+            document.getElementById('totalInvestment').textContent = '$' + totalInvestment.toFixed(2);
+            document.getElementById('expectedProfit').textContent = (expectedProfit >= 0 ? '+' : '-') + '$' + Math.abs(expectedProfit).toFixed(2);
+            document.getElementById('profitPercentage').textContent = (profitPercentage >= 0 ? '+' : '') + profitPercentage.toFixed(2) + '%';
+            document.getElementById('breakEvenPrice').textContent = '$' + breakEvenSellingPrice.toFixed(2);
+            document.getElementById('riskRewardRatio').textContent = riskRewardRatio;
+            document.getElementById('feeDisplay').textContent = '$' + totalBrokerage.toFixed(2);
+            document.getElementById('riskPerShare').textContent = '$' + riskPerShare.toFixed(2);
+            document.getElementById('maximumLoss').textContent = '$' + maximumLoss.toFixed(2);
+            document.getElementById('riskPercentage').textContent = riskPercentage.toFixed(2) + '%';
+            document.getElementById('recommendedShares').textContent = recommendedShares.toString();
+
+            const heroElement = document.getElementById('heroValue');
+            const expectedProfitElement = document.getElementById('expectedProfit');
+            const profitPercentageElement = document.getElementById('profitPercentage');
+            const maximumLossElement = document.getElementById('maximumLoss');
+            if (expectedProfit >= 0) {
+                heroElement.className = 'hero-value positive';
+                expectedProfitElement.className = 'result-value positive';
+                profitPercentageElement.className = 'result-value positive';
+            } else {
+                heroElement.className = 'hero-value negative';
+                expectedProfitElement.className = 'result-value negative';
+                profitPercentageElement.className = 'result-value negative';
+            }
+            maximumLossElement.className = 'result-value negative';
+
+            resultsDiv.classList.add('show');
+            emptyStateDiv.style.display = 'none';
+        }
+
+        function resetCalculator() {
+            tickerInput.value = '';
+            quantityInput.value = '';
+            averageCostInput.value = '';
+            currentPriceInput.value = '';
+            targetPriceInput.value = '';
+            stopLossPriceInput.value = '';
+            brokerageFeeInput.value = '';
+            accountSizeInput.value = '';
+            riskPerTradeInput.value = '';
+            resultsDiv.classList.remove('show');
+            emptyStateDiv.style.display = 'block';
+            state.ticker = '';
+            state.quantity = '';
+            state.averageCost = '';
+            state.currentPrice = '';
+            state.targetPrice = '';
+            state.stopLossPrice = '';
+            state.brokerageFee = '';
+            state.accountSize = '';
+            state.riskPerTrade = '';
+            saveState();
+        }
+
+        loadState();
+        hydrateForm();
+    </script>
+</body>
+</html>
