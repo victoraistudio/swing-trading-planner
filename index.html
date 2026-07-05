@@ -196,11 +196,21 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="icon">📈</div>
-            <h1>Swing Trade Planner</h1>
-            <p>Professional investor dashboard for target exits, downside risk, and expected returns.</p>
-        </div>
+     <div class="header">
+    <div style="text-align:right; margin-bottom:10px;">
+        <button id="languageBtn" class="secondary-btn">
+            中文
+        </button>
+    </div>
+
+    <div class="icon">📈</div>
+
+    <h1 id="mainTitle">Swing Trade Planner</h1>
+
+    <p id="mainSubtitle">
+        Professional investor dashboard for target exits, downside risk, and expected returns.
+    </p>
+</div>
 
         <div class="panel">
             <div class="panel-title">Trade Inputs</div>
@@ -366,7 +376,7 @@
 
     <script>
         const STORAGE_KEY = 'swing-trading-calculator-state';
-
+        let currentLanguage = 'en';
         const tickerInput = document.getElementById('ticker');
         const quantityInput = document.getElementById('quantity');
         const averageCostInput = document.getElementById('averageCost');
@@ -614,6 +624,27 @@
             state.riskPerTrade = '';
             saveState();
         }
+function toggleLanguage() {
+    const button = document.getElementById('languageBtn');
+    const title = document.getElementById('mainTitle');
+    const subtitle = document.getElementById('mainSubtitle');
+
+    if (currentLanguage === 'en') {
+        currentLanguage = 'zh';
+
+        button.textContent = 'English';
+        title.textContent = '摆动交易计划器';
+        subtitle.textContent = '专业投资者仪表盘，用于分析目标价、风险和收益。';
+    } else {
+        currentLanguage = 'en';
+
+        button.textContent = '中文';
+        title.textContent = 'Swing Trade Planner';
+        subtitle.textContent = 'Professional investor dashboard for target exits, downside risk, and expected returns.';
+    }
+}
+
+document.getElementById('languageBtn').addEventListener('click', toggleLanguage);
 
         loadState();
         hydrateForm();
