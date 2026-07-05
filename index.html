@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swing Trading Calculator</title>
+    <title>TEST 123</title>
     <style>
         :root {
             color-scheme: light;
@@ -19,7 +20,11 @@
             --shadow: 0 24px 70px rgba(2, 8, 23, 0.28);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -41,12 +46,38 @@
             animation: slideUp 0.4s ease-out;
         }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
 
-        .header { text-align: center; margin-bottom: 22px; }
-        .icon { font-size: 44px; margin-bottom: 10px; }
-        .header h1 { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
-        .header p { color: var(--muted); font-size: 14px; }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .icon {
+            font-size: 44px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--muted);
+            font-size: 14px;
+        }
 
         .panel {
             background: #f8fafc;
@@ -65,9 +96,23 @@
             margin-bottom: 14px;
         }
 
-        .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-        .input-group { margin-bottom: 0; }
-        .risk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
         .risk-card {
             background: white;
             border: 1px solid var(--border);
@@ -86,7 +131,9 @@
             color: #334155;
         }
 
-        input, select, textarea {
+        input,
+        select,
+        textarea {
             width: 100%;
             padding: 12px 14px;
             border: 1px solid #cbd5e1;
@@ -96,17 +143,37 @@
             font-family: inherit;
         }
 
-        textarea { min-height: 90px; resize: vertical; }
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
 
-        .results { display: none; animation: fadeIn 0.25s ease-out; }
-        .results.show { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .results {
+            display: none;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
 
         .hero {
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.09), rgba(124, 58, 237, 0.13));
@@ -117,10 +184,28 @@
             text-align: center;
         }
 
-        .hero-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
-        .hero-value { font-size: 30px; font-weight: 800; font-family: 'Courier New', monospace; }
+        .hero-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
 
-        .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+        .hero-value {
+            font-size: 30px;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
         .result-card {
             background: white;
             border: 1px solid var(--border);
@@ -131,15 +216,50 @@
             gap: 6px;
             min-height: 98px;
         }
-        .result-label { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-        .result-value { font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; }
-        .positive { color: var(--profit); }
-        .negative { color: var(--loss); }
-        .neutral { color: var(--accent); }
 
-        .notes-grid { display: grid; gap: 12px; }
-        .journal-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
-        .journal-list { display: grid; gap: 10px; }
+        .result-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .positive {
+            color: var(--profit);
+        }
+
+        .negative {
+            color: var(--loss);
+        }
+
+        .neutral {
+            color: var(--accent);
+        }
+
+        .notes-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .journal-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .journal-list {
+            display: grid;
+            gap: 10px;
+        }
+
         .journal-item {
             background: white;
             border: 1px solid var(--border);
@@ -150,7 +270,13 @@
             align-items: flex-start;
             gap: 12px;
         }
-        .journal-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+        .journal-meta {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
         .status-pill {
             display: inline-block;
             padding: 4px 10px;
@@ -160,10 +286,23 @@
             text-transform: uppercase;
             white-space: nowrap;
         }
-        .status-winning { background: rgba(22, 163, 74, 0.12); color: var(--profit); }
-        .status-losing { background: rgba(220, 38, 38, 0.12); color: var(--loss); }
 
-        .button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .status-winning {
+            background: rgba(22, 163, 74, 0.12);
+            color: var(--profit);
+        }
+
+        .status-losing {
+            background: rgba(220, 38, 38, 0.12);
+            color: var(--loss);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         button {
             border: none;
             border-radius: 12px;
@@ -173,44 +312,84 @@
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        button:hover { transform: translateY(-1px); }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
         .primary-btn {
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
             color: white;
             box-shadow: 0 10px 20px rgba(37, 99, 235, 0.22);
         }
-        .secondary-btn { background: #e2e8f0; color: #0f172a; }
-        .tiny-btn { padding: 8px 10px; font-size: 12px; background: #fee2e2; color: var(--loss); }
 
-        .empty-state { text-align: center; color: var(--muted); padding: 12px 6px 4px; font-size: 14px; }
+        .secondary-btn {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .tiny-btn {
+            padding: 8px 10px;
+            font-size: 12px;
+            background: #fee2e2;
+            color: var(--loss);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--muted);
+            padding: 12px 6px 4px;
+            font-size: 14px;
+        }
 
         @media (max-width: 600px) {
-            .container { padding: 24px 18px; border-radius: 18px; }
-            .header h1 { font-size: 24px; }
-            .grid-2, .result-grid, .journal-form { grid-template-columns: 1fr; }
-            .result-value { font-size: 16px; }
-            .hero-value { font-size: 24px; }
-            .journal-item { flex-direction: column; }
+            .container {
+                padding: 24px 18px;
+                border-radius: 18px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .grid-2,
+            .result-grid,
+            .journal-form {
+                grid-template-columns: 1fr;
+            }
+
+            .result-value {
+                font-size: 16px;
+            }
+
+            .hero-value {
+                font-size: 24px;
+            }
+
+            .journal-item {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-     <div class="header">
-    <div style="text-align:right; margin-bottom:10px;">
-        <button id="languageBtn" class="secondary-btn">
-            中文
-        </button>
-    </div>
+        <div class="header">
+            <div style="text-align:right; margin-bottom:10px;">
+                <button id="languageBtn" class="secondary-btn">
+                    中文
+                </button>
+            </div>
 
-    <div class="icon">📈</div>
+            <div class="icon">📈</div>
 
-    <h1 id="mainTitle">Swing Trade Planner</h1>
+            <h1 id="mainTitle">Swing Trade Planner</h1>
 
-    <p id="mainSubtitle">
-        Professional investor dashboard for target exits, downside risk, and expected returns.
-    </p>
-</div>
+            <p id="mainSubtitle">
+                Professional investor dashboard for target exits, downside risk, and expected returns.
+            </p>
+        </div>
 
         <div class="panel">
             <div class="panel-title">Trade Inputs</div>
@@ -624,30 +803,31 @@
             state.riskPerTrade = '';
             saveState();
         }
-function toggleLanguage() {
-    const button = document.getElementById('languageBtn');
-    const title = document.getElementById('mainTitle');
-    const subtitle = document.getElementById('mainSubtitle');
+        function toggleLanguage() {
+            const button = document.getElementById('languageBtn');
+            const title = document.getElementById('mainTitle');
+            const subtitle = document.getElementById('mainSubtitle');
 
-    if (currentLanguage === 'en') {
-        currentLanguage = 'zh';
+            if (currentLanguage === 'en') {
+                currentLanguage = 'zh';
 
-        button.textContent = 'English';
-        title.textContent = '摆动交易计划器';
-        subtitle.textContent = '专业投资者仪表盘，用于分析目标价、风险和收益。';
-    } else {
-        currentLanguage = 'en';
+                button.textContent = 'English';
+                title.textContent = '摆动交易计划器';
+                subtitle.textContent = '专业投资者仪表盘，用于分析目标价、风险和收益。';
+            } else {
+                currentLanguage = 'en';
 
-        button.textContent = '中文';
-        title.textContent = 'Swing Trade Planner';
-        subtitle.textContent = 'Professional investor dashboard for target exits, downside risk, and expected returns.';
-    }
-}
+                button.textContent = '中文';
+                title.textContent = 'Swing Trade Planner';
+                subtitle.textContent = 'Professional investor dashboard for target exits, downside risk, and expected returns.';
+            }
+        }
 
-document.getElementById('languageBtn').addEventListener('click', toggleLanguage);
+        document.getElementById('languageBtn').addEventListener('click', toggleLanguage);
 
         loadState();
         hydrateForm();
     </script>
 </body>
+
 </html>
